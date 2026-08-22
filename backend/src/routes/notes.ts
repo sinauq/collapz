@@ -2,7 +2,6 @@ import { eq } from "drizzle-orm";
 import { FastifyPluginAsync } from "fastify";
 
 import { db } from "../db/index.js";
-import { notes } from "../db/schema.js";
 
 type CreateNoteBody = {
   title: string;
@@ -13,6 +12,7 @@ type UpdateNoteBody = {
   title?: string;
   content?: string;
 };
+import { notes } from "../db/schema.ts";
 
 export const noteRoutes: FastifyPluginAsync = async (app) => {
   app.post(
