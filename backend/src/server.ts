@@ -1,10 +1,27 @@
-import Fastify from "fastify";
 import cors from "@fastify/cors";
+import Fastify from "fastify";
+import { ZodError } from "zod";
 
 import { noteRoutes } from "./routes/notes.js";
 
 const app = Fastify({
   logger: true,
+});
+
+app.setErrorHandler((err, req, res) => {
+  if (err instanceof ZodError) {
+    return res.code(400).send({
+      error: "validation failed",
+      details: err.issues,
+    });
+  }
+
+  req.log.error(err);
+
+  return res.code(500).send({
+    error: "Internal server error",
+    // message: err.issues,
+  });
 });
 
 await app.register(cors, {

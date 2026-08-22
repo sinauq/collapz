@@ -2,54 +2,34 @@ import { eq } from "drizzle-orm";
 import { FastifyPluginAsync } from "fastify";
 
 import { db } from "../db/index.js";
-
-type CreateNoteBody = {
-  title: string;
-  content: string;
-};
-
-type UpdateNoteBody = {
-  title?: string;
-  content?: string;
-};
 import { notes } from "../db/schema.ts";
+import {
+  createNoteSchema,
+  updateNoteSchema,
+  noteParamsSchema,
+} from "../schemas/notes.ts";
 
 export const noteRoutes: FastifyPluginAsync = async (app) => {
-  app.post(
-    "/api/notes",
-    {
-      schema: {
-        body: {
-          type: "object",
-          required: ["title", "content"],
-          properties: {
-            title: { type: "string", nullable: false },
-            content: { type: "string" },
-          },
-        },
-      },
-    },
-    async (req, res) => {
-      const body = req.body as CreateNoteBody;
+  app.post("/api/notes", async (req, res) => {
+    const body = createNoteSchema.parse(req.body);
 
-      const [note] = await db
-        .insert(notes)
-        .values({
-          title: body.title,
-          content: body.content,
-        })
-        .returning();
+    const [note] = await db
+      .insert(notes)
+      .values({
+        title: body.title,
+        content: body.content,
+      })
+      .returning();
 
-      return res.code(201).send(note);
-    },
-  );
+    return res.code(201).send(note);
+  });
 
   app.get("/api/notes", async () => {
     return db.select().from(notes);
   });
 
   app.get("/api/notes/:id", async (req, res) => {
-    const { id } = req.params as { id: string };
+    const { id } = noteParamsSchema.parse(req.params);
     const [note] = await db
       .select()
       .from(notes)
@@ -64,8 +44,8 @@ export const noteRoutes: FastifyPluginAsync = async (app) => {
   });
 
   app.patch("/api/notes/:id", async (req, res) => {
-    const { id } = req.params as { id: string };
-    const body = req.body as UpdateNoteBody;
+    const { id } = noteParamsSchema.parse(req.params);
+    const body = updateNoteSchema.parse(req.body);
     const [note] = await db
       .update(notes)
       .set({
@@ -84,7 +64,7 @@ export const noteRoutes: FastifyPluginAsync = async (app) => {
   });
 
   app.delete("/api/notes/:id", async (req, res) => {
-    const { id } = req.params as { id: string };
+    const { id } = noteParamsSchema.parse(req.params);
     const [note] = await db
       .delete(notes)
       .where(eq(Number(id), notes.id))
