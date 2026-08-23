@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const noteParamsSchema = z.object({
+export const idParamsScheme = z.object({
   id: z.coerce.number().int().positive(),
 });
 
@@ -42,3 +42,22 @@ export const notesQueryParams = z.object({
 });
 
 export type NotesQueryParams = z.infer<typeof notesQueryParams>;
+
+export const usersQueryParams = z.object({
+  search: z.string().optional(),
+  order: z.enum(["asc", "desc"]).optional(),
+});
+
+export const createUserSchema = z.object({
+  name: z.string(),
+  role: z.string(),
+});
+
+export const updateUserSchema = z
+  .object({
+    name: z.string().optional(),
+    role: z.string().optional(),
+  })
+  .refine((data) => data.role != undefined || data.name != undefined, {
+    message: "At least one field must be provided.",
+  });

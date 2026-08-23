@@ -5,13 +5,14 @@ import { db } from "../db/index.js";
 import { noteLinks, notes } from "../db/schema.ts";
 import {
   createNoteSchema,
-  noteParamsSchema,
+  idParamsScheme,
   NotesQueryParams,
   notesQueryParams,
   updateNoteSchema,
 } from "../schemas/notes.ts";
 
 export const noteRoutes: FastifyPluginAsync = async (app) => {
+  // TODO add query params for userId
   app.get("/api/notes", async (req, res) => {
     const { search, sortBy, order }: NotesQueryParams = notesQueryParams.parse(
       req.query,
@@ -35,7 +36,7 @@ export const noteRoutes: FastifyPluginAsync = async (app) => {
   });
 
   app.get("/api/notes/:id", async (req, res) => {
-    const { id } = noteParamsSchema.parse(req.params);
+    const { id } = idParamsScheme.parse(req.params);
     const [note] = await db
       .select()
       .from(notes)
@@ -92,7 +93,7 @@ export const noteRoutes: FastifyPluginAsync = async (app) => {
   });
 
   app.patch("/api/notes/:id", async (req, res) => {
-    const { id } = noteParamsSchema.parse(req.params);
+    const { id } = idParamsScheme.parse(req.params);
     const body = updateNoteSchema.parse(req.body);
     const [note] = await db
       .update(notes)
@@ -112,7 +113,7 @@ export const noteRoutes: FastifyPluginAsync = async (app) => {
   });
 
   app.delete("/api/notes/:id", async (req, res) => {
-    const { id } = noteParamsSchema.parse(req.params);
+    const { id } = idParamsScheme.parse(req.params);
     const [note] = await db
       .delete(notes)
       .where(eq(Number(id), notes.id))

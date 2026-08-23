@@ -6,13 +6,13 @@ import { noteLinks, notes } from "../db/schema.ts";
 import {
   createNoteLink,
   linkParams,
-  noteParamsSchema,
+  idParamsScheme,
   updateNoteLink,
 } from "../schemas/notes.ts";
 
 export const linkRoutes: FastifyPluginAsync = async (app) => {
   app.get("/api/notes/:id/links", async (req, res) => {
-    const { id } = noteParamsSchema.parse(req.params);
+    const { id } = idParamsScheme.parse(req.params);
 
     const [note] = await db.select().from(notes).where(eq(notes.id, id));
 
@@ -36,7 +36,7 @@ export const linkRoutes: FastifyPluginAsync = async (app) => {
   });
 
   app.post("/api/notes/:id/links", async (req, res) => {
-    const { id } = noteParamsSchema.parse(req.params);
+    const { id } = idParamsScheme.parse(req.params);
     const { targetId, relationship } = createNoteLink.parse(req.body);
 
     if (id === targetId) {

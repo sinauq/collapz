@@ -4,6 +4,7 @@ import { ZodError } from "zod";
 
 import { noteRoutes } from "./routes/notes.js";
 import { linkRoutes } from "./routes/links.ts";
+import { userRoutes } from "./routes/users.ts";
 
 export function isPostgresError(
   error: unknown,
@@ -50,6 +51,8 @@ export async function buildApp() {
   await app.register(noteRoutes);
 
   await app.register(linkRoutes);
+
+  await app.register(userRoutes);
 
   console.log("Server routes: ", app.printRoutes());
   app.get("/api/health", async () => {
