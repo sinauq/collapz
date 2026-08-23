@@ -31,6 +31,19 @@ describe("links", () => {
     expect(response.statusCode).toBe(404);
   });
 
+  it("rejects invalid id", async () => {
+    const response = await app.inject({
+      method: "POST",
+      url: "/api/notes/1/links",
+      payload: {
+        targetId: "abs",
+        relationship: "relates_to",
+      },
+    });
+
+    expect(response.statusCode).toBe(400);
+  });
+
   it("rejects a self-link", async () => {
     const response = await app.inject({
       method: "POST",
@@ -42,5 +55,39 @@ describe("links", () => {
     });
 
     expect(response.statusCode).toBe(400);
+  });
+
+  it("has backLink in response", async () => {
+    const response = await app.inject({
+      method: "GET",
+      url: "/api/notes/1/links",
+    });
+    const body = response.json();
+
+    expect(body).toHaveProperty("backLinks");
+  });
+
+  it("has forwardLink in response", async () => {
+    const response = await app.inject({
+      method: "GET",
+      url: "/api/notes/1/links",
+    });
+    const body = response.json();
+
+    expect(body).toHaveProperty("forwardLinks");
+  });
+
+  it("sourceId is id", async () => {
+    const response = await app.inject({
+      method: "GET",
+      url: "/api/notes/1/links",
+    });
+    const body = response.json();
+
+    expect(
+      body.forwardLinks
+        .map(({ sourceId }: { sourceId: number }) => sourceId)
+        .filter((item, pos, own) => own.indexOf(item) == pos),
+    ).toStrictEqual([1]);
   });
 });

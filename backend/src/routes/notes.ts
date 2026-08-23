@@ -2,7 +2,7 @@ import { eq } from "drizzle-orm";
 import { FastifyPluginAsync } from "fastify";
 
 import { db } from "../db/index.js";
-import { notes } from "../db/schema.ts";
+import { noteLinks, notes } from "../db/schema.ts";
 import {
   createNoteSchema,
   noteParamsSchema,
@@ -21,8 +21,36 @@ export const noteRoutes: FastifyPluginAsync = async (app) => {
       .from(notes)
       .where(eq(notes.id, Number(id)));
 
+    const backLinks = await db
+      .select({
+        relationship: noteLinks.relationship,
+        id: notes.id,
+        title: notes.title,
+        content: notes.content,
+      })
+      .from(noteLinks)
+      .innerJoin(notes, eq(noteLinks.sourceId, notes.id))
+      .where(eq(noteLinks.targetId, id));
+
+    const forwardLinks = await db
+      .select({
+        relationship: noteLinks.relationship,
+        id: notes.id,
+        title: notes.title,
+        content: notes.content,
+      })
+      .from(noteLinks)
+      .innerJoin(notes, eq(noteLinks.targetId, notes.id))
+      .where(eq(noteLinks.sourceId, id));
+
     return note
-      ? note
+      ? res.code(200).send({
+          ...note,
+          relationships: {
+            backLinks: backLinks ?? [],
+            forwardLinks: forwardLinks ?? [],
+          },
+        })
       : res.code(404).send({
           error: "Note not found.",
           data: { id },

@@ -15,7 +15,7 @@ export const notes = pgTable("notes", {
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .defaultNow(),
-  updateAt: timestamp("updated_at", { withTimezone: true })
+  updatedAt: timestamp("updated_at", { withTimezone: true })
     .notNull()
     .defaultNow(),
 });
