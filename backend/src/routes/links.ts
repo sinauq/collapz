@@ -1,15 +1,20 @@
-import { sql } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { FastifyPluginAsync } from "fastify";
 
 import { db } from "../db/index.js";
-import { notes, noteLinks } from "../db/schema.ts";
-import { noteParamsSchema, createNoteLink } from "../schemas/notes.ts";
+import { noteLinks, notes } from "../db/schema.ts";
+import {
+  createNoteLink,
+  linkParams,
+  noteParamsSchema,
+  updateNoteLink,
+} from "../schemas/notes.ts";
 
 export const linkRoutes: FastifyPluginAsync = async (app) => {
   app.get("/api/notes/:id/links", async (req, res) => {
     const { id } = noteParamsSchema.parse(req.params);
 
-    const [note] = await db.select().from(notes);
+    const [note] = await db.select().from(notes).where(eq(notes.id, id));
 
     if (!note) {
       return res.code(404).send({
@@ -17,15 +22,15 @@ export const linkRoutes: FastifyPluginAsync = async (app) => {
       });
     }
 
-    const [backLinks] = await db
+    const backLinks = await db
       .select()
       .from(noteLinks)
-      .where(sql`target_id = ${id}`);
+      .where(eq(noteLinks.targetId, id));
 
-    const [forwardLinks] = await db
+    const forwardLinks = await db
       .select()
       .from(noteLinks)
-      .where(sql`source_id = ${id}`);
+      .where(eq(noteLinks.sourceId, id));
 
     return res.code(200).send({ backLinks, forwardLinks });
   });
@@ -34,37 +39,82 @@ export const linkRoutes: FastifyPluginAsync = async (app) => {
     const { id } = noteParamsSchema.parse(req.params);
     const { targetId, relationship } = createNoteLink.parse(req.body);
 
-    const [sourceQueriedId] = await db
-      .select()
-      .from(noteLinks)
-      .where(sql`source_id = ${id}`);
-
-    const [targetQuereiedId] = await db
-      .select()
-      .from(noteLinks)
-      .where(sql`target_id = ${targetId}`);
-
-    if (id == targetId) {
+    if (id === targetId) {
       return res.code(400).send({
         error: "Node cannot link to itself",
       });
     }
 
-    if (!sourceQueriedId || !targetQuereiedId) {
-      return res.code(400).send({
-        error: "Source or target does not exist.",
+    const [sourceQueriedId] = await db
+      .select({ id: notes.id })
+      .from(notes)
+      .where(eq(notes.id, id));
+
+    if (!sourceQueriedId) {
+      return res.code(404).send({
+        error: "Source does not exist.",
+      });
+    }
+
+    const [targetQuereiedId] = await db
+      .select({ id: notes.id })
+      .from(notes)
+      .where(eq(notes.id, targetId));
+
+    if (!targetQuereiedId) {
+      return res.code(404).send({
+        error: "Target does not exist.",
       });
     }
 
     const [link] = await db
       .insert(noteLinks)
       .values({
-        sourceId: Number(id),
+        sourceId: id,
         targetId,
         relationship,
       })
       .returning();
 
     return res.code(201).send(link);
+  });
+
+  app.patch("/api/notes/:sourceId/links/:targetId", async (req, res) => {
+    const { sourceId, targetId } = linkParams.parse(req.params);
+    const { relationship } = updateNoteLink.parse(req.body);
+
+    const [link] = await db
+      .update(noteLinks)
+      .set({
+        relationship,
+      })
+      .where(
+        and(eq(noteLinks.sourceId, sourceId), eq(noteLinks.targetId, targetId)),
+      )
+      .returning();
+
+    return link
+      ? link
+      : res.code(404).send({
+          error: "No such link exists",
+          data: { targetId, sourceId: sourceId },
+        });
+  });
+
+  app.delete("/api/notes/:id/links", async (req, res) => {
+    const { id } = noteParamsSchema.parse(req.params);
+    const { targetId, relationship } = createNoteLink.parse(req.body);
+
+    const [link] = await db
+      .delete(noteLinks)
+      .where(and(eq(noteLinks.sourceId, id), eq(noteLinks.targetId, targetId)))
+      .returning();
+
+    return link
+      ? res.code(204).send()
+      : res.code(404).send({
+          error: "No such link exists",
+          data: { targetId, sourceId: id },
+        });
   });
 };

@@ -21,7 +21,16 @@ export const updateNoteSchema = z
 export type CreateNoteBody = z.infer<typeof createNoteSchema>;
 export type UpdateNoteBody = z.infer<typeof updateNoteSchema>;
 
+export const linkParams = z.object({
+  sourceId: z.coerce.number().int().positive(),
+  targetId: z.coerce.number().int().positive(),
+});
+
 export const createNoteLink = z.object({
   targetId: z.number(),
+  relationship: z.string(),
+});
+
+export const updateNoteLink = z.object({
   relationship: z.string(),
 });
