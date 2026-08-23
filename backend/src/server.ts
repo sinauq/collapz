@@ -1,15 +1,13 @@
 import cors from "@fastify/cors";
-import Fastify from "fastify";
+import Fastify, { FastifyInstance } from "fastify";
 import { ZodError } from "zod";
 
 import { noteRoutes } from "./routes/notes.js";
 import { linkRoutes } from "./routes/links.ts";
 
-const app = Fastify({
-  logger: true,
-});
-
-function isPostgresError(error: unknown): error is { cause: { code: string } } {
+export function isPostgresError(
+  error: unknown,
+): error is { cause: { code: string } } {
   return (
     error !== null &&
     typeof error === "object" &&
@@ -18,40 +16,50 @@ function isPostgresError(error: unknown): error is { cause: { code: string } } {
   );
 }
 
-app.setErrorHandler((err, req, res) => {
-  if (isPostgresError(err) && err.cause.code === "23505") {
-    return res.code(409).send({
-      error: "Link between the nodes already exist.",
-    });
-  }
-
-  if (err instanceof ZodError) {
-    return res.code(400).send({
-      error: "validation failed",
-      details: err.issues,
-    });
-  }
-
-  req.log.error(err);
-
-  return res.code(500).send({
-    error: "Internal server error",
-    // message: err.issues,
+export async function buildApp() {
+  const app = Fastify({
+    logger: true,
   });
-});
 
-await app.register(cors, {
-  origin: "http://localhost:5173",
-});
+  app.setErrorHandler((err, req, res) => {
+    if (isPostgresError(err) && err.cause.code === "23505") {
+      return res.code(409).send({
+        error: "Link between the nodes already exist.",
+      });
+    }
 
-await app.register(noteRoutes);
+    if (err instanceof ZodError) {
+      return res.code(400).send({
+        error: "validation failed",
+        details: err.issues,
+      });
+    }
 
-await app.register(linkRoutes);
+    req.log.error(err);
 
-console.log("Server routes: ", app.printRoutes());
-app.get("/api/health", async () => {
-  return { status: "ok" };
-});
+    return res.code(500).send({
+      error: "Internal server error",
+      // message: err.issues,
+    });
+  });
+
+  await app.register(cors, {
+    origin: "http://localhost:5173",
+  });
+
+  await app.register(noteRoutes);
+
+  await app.register(linkRoutes);
+
+  console.log("Server routes: ", app.printRoutes());
+  app.get("/api/health", async () => {
+    return { status: "ok" };
+  });
+
+  return app;
+}
+
+const app = await buildApp();
 
 try {
   await app.listen({
