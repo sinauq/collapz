@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { asc, desc, eq, ilike, or } from "drizzle-orm";
 import { FastifyPluginAsync } from "fastify";
 
 import { db } from "../db/index.js";
@@ -6,12 +6,32 @@ import { noteLinks, notes } from "../db/schema.ts";
 import {
   createNoteSchema,
   noteParamsSchema,
+  NotesQueryParams,
+  notesQueryParams,
   updateNoteSchema,
 } from "../schemas/notes.ts";
 
 export const noteRoutes: FastifyPluginAsync = async (app) => {
-  app.get("/api/notes", async () => {
-    return db.select().from(notes);
+  app.get("/api/notes", async (req, res) => {
+    const { search, sortBy, order }: NotesQueryParams = notesQueryParams.parse(
+      req.query,
+    );
+    const sort = sortBy === "updatedAt" ? notes.updatedAt : notes.createdAt;
+    const orderFunction = order == "asc" ? asc(sort) : desc(sort);
+    const allNotes = await db
+      .select()
+      .from(notes)
+      .where(
+        search
+          ? or(
+              ilike(notes.title, `%${search}%`),
+              ilike(notes.content, `%${search}%`),
+            )
+          : undefined,
+      )
+      .orderBy(orderFunction);
+
+    return res.code(200).send(allNotes);
   });
 
   app.get("/api/notes/:id", async (req, res) => {

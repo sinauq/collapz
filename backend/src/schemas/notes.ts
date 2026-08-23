@@ -34,3 +34,11 @@ export const createNoteLink = z.object({
 export const updateNoteLink = z.object({
   relationship: z.string(),
 });
+
+export const notesQueryParams = z.object({
+  search: z.string().optional(),
+  sortBy: z.enum(["createdAt", "updatedAt"]).optional(),
+  order: z.enum(["asc", "desc"]).optional(),
+});
+
+export type NotesQueryParams = z.infer<typeof notesQueryParams>;

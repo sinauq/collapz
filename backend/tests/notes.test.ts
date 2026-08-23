@@ -2,7 +2,7 @@ import { beforeAll, afterAll, describe, expect, it } from "vitest";
 import type { FastifyInstance } from "fastify";
 import { buildApp } from "../src/server.js";
 
-async function getNote(app: FastifyInstance, note: { id: number }) {
+export async function getNote(app: FastifyInstance, note: { id: number }) {
   const response = await app.inject({
     method: "GET",
     url: `/api/notes/${note.id}`,
@@ -11,7 +11,7 @@ async function getNote(app: FastifyInstance, note: { id: number }) {
   return response.json();
 }
 
-async function createTestNote(
+export async function createTestNote(
   app: FastifyInstance,
   note = {
     title: "Test note",
@@ -29,7 +29,7 @@ async function createTestNote(
   return response.json();
 }
 
-async function createTestLink(
+export async function createTestLink(
   app: FastifyInstance,
   source: { id: number },
   target: { id: number },
