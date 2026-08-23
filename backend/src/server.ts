@@ -1,5 +1,5 @@
 import cors from "@fastify/cors";
-import Fastify, { FastifyInstance } from "fastify";
+import Fastify from "fastify";
 import { ZodError } from "zod";
 
 import { noteRoutes } from "./routes/notes.js";
@@ -57,16 +57,4 @@ export async function buildApp() {
   });
 
   return app;
-}
-
-const app = await buildApp();
-
-try {
-  await app.listen({
-    port: 3000,
-    host: "0.0.0.0",
-  });
-} catch (error) {
-  app.log.error(error);
-  process.exit(1);
 }
