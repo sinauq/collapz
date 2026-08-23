@@ -79,8 +79,8 @@ export const linkRoutes: FastifyPluginAsync = async (app) => {
     return res.code(201).send(link);
   });
 
-  app.patch("/api/notes/:sourceId/links/:targetId", async (req, res) => {
-    const { sourceId, targetId } = linkParams.parse(req.params);
+  app.patch("/api/notes/:id/links/:linkId", async (req, res) => {
+    const { id, linkId } = linkParams.parse(req.params);
     const { relationship } = updateNoteLink.parse(req.body);
 
     const [link] = await db
@@ -88,26 +88,24 @@ export const linkRoutes: FastifyPluginAsync = async (app) => {
       .set({
         relationship,
       })
-      .where(
-        and(eq(noteLinks.sourceId, sourceId), eq(noteLinks.targetId, targetId)),
-      )
+      .where(eq(noteLinks.id, linkId))
       .returning();
 
     return link
       ? link
       : res.code(404).send({
           error: "No such link exists",
-          data: { targetId, sourceId: sourceId },
+          data: { id, linkId },
         });
   });
 
-  app.delete("/api/notes/:id/links", async (req, res) => {
-    const { id } = noteParamsSchema.parse(req.params);
-    const { targetId, relationship } = createNoteLink.parse(req.body);
+  app.delete("/api/notes/:id/links/:linkId", async (req, res) => {
+    const { id, linkId } = linkParams.parse(req.params);
+    const { targetId } = createNoteLink.parse(req.body);
 
     const [link] = await db
       .delete(noteLinks)
-      .where(and(eq(noteLinks.sourceId, id), eq(noteLinks.targetId, targetId)))
+      .where(eq(noteLinks.id, linkId))
       .returning();
 
     return link
