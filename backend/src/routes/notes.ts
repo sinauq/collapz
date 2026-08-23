@@ -2,29 +2,14 @@ import { eq } from "drizzle-orm";
 import { FastifyPluginAsync } from "fastify";
 
 import { db } from "../db/index.js";
-import { notes, noteLinks } from "../db/schema.ts";
+import { notes } from "../db/schema.ts";
 import {
   createNoteSchema,
   noteParamsSchema,
   updateNoteSchema,
-  createNoteLink,
 } from "../schemas/notes.ts";
 
 export const noteRoutes: FastifyPluginAsync = async (app) => {
-  app.post("/api/notes", async (req, res) => {
-    const body = createNoteSchema.parse(req.body);
-
-    const [note] = await db
-      .insert(notes)
-      .values({
-        title: body.title,
-        content: body.content,
-      })
-      .returning();
-
-    return res.code(201).send(note);
-  });
-
   app.get("/api/notes", async () => {
     return db.select().from(notes);
   });
@@ -42,6 +27,20 @@ export const noteRoutes: FastifyPluginAsync = async (app) => {
           error: "Note not found.",
           data: { id },
         });
+  });
+
+  app.post("/api/notes", async (req, res) => {
+    const body = createNoteSchema.parse(req.body);
+
+    const [note] = await db
+      .insert(notes)
+      .values({
+        title: body.title,
+        content: body.content,
+      })
+      .returning();
+
+    return res.code(201).send(note);
   });
 
   app.patch("/api/notes/:id", async (req, res) => {
@@ -77,27 +76,5 @@ export const noteRoutes: FastifyPluginAsync = async (app) => {
           error: "Note not found.",
           data: { id },
         });
-  });
-
-  app.post("/api/notes/:id/link", async (req, res) => {
-    const { id } = noteParamsSchema.parse(req.params);
-    const { targetId, relationship } = createNoteLink.parse(req.body);
-
-    if (id == targetId) {
-      return res.code(400).send({
-        error: "Node cannot link to itself",
-      });
-    }
-
-    const [link] = await db
-      .insert(noteLinks)
-      .values({
-        sourceId: Number(id),
-        targetId,
-        relationship,
-      })
-      .returning();
-
-    return res.code(201).send(link);
   });
 };

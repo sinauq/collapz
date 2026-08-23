@@ -3,7 +3,7 @@ import Fastify from "fastify";
 import { ZodError } from "zod";
 
 import { noteRoutes } from "./routes/notes.js";
-import { DrizzleQueryError } from "drizzle-orm";
+import { linkRoutes } from "./routes/links.ts";
 
 const app = Fastify({
   logger: true,
@@ -46,6 +46,9 @@ await app.register(cors, {
 
 await app.register(noteRoutes);
 
+await app.register(linkRoutes);
+
+console.log("Server routes: ", app.printRoutes());
 app.get("/api/health", async () => {
   return { status: "ok" };
 });
