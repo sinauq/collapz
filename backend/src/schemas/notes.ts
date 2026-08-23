@@ -20,3 +20,8 @@ export const updateNoteSchema = z
 
 export type CreateNoteBody = z.infer<typeof createNoteSchema>;
 export type UpdateNoteBody = z.infer<typeof updateNoteSchema>;
+
+export const createNoteLink = z.object({
+  targetId: z.number(),
+  relationship: z.string(),
+});

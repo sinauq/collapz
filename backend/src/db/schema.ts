@@ -1,4 +1,12 @@
-import { integer, pgTable, text, timestamp } from "drizzle-orm/pg-core";
+import { sql } from "drizzle-orm";
+import {
+  check,
+  integer,
+  pgTable,
+  text,
+  timestamp,
+  unique,
+} from "drizzle-orm/pg-core";
 
 export const notes = pgTable("notes", {
   id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
@@ -12,13 +20,21 @@ export const notes = pgTable("notes", {
     .defaultNow(),
 });
 
-export const noteLinks = pgTable("noteLinks", {
-  id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
-  source_id: integer("source_id")
-    .references(() => notes.id)
-    .notNull(),
-  target_id: integer("target_id")
-    .references(() => notes.id)
-    .notNull(),
-  relationship: text("relationship"),
-});
+export const noteLinks = pgTable(
+  "note_links",
+  {
+    id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+
+    sourceId: integer("source_id")
+      .references(() => notes.id)
+      .notNull(),
+    targetId: integer("target_id")
+      .references(() => notes.id)
+      .notNull(),
+    relationship: text("relationship").notNull(),
+  },
+  (table) => [
+    unique("source_target_unique_link").on(table.sourceId, table.targetId),
+    check("source_taget_not_same", sql`${table.sourceId} <> ${table.targetId}`),
+  ],
+);

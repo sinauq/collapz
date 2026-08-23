@@ -3,12 +3,28 @@ import Fastify from "fastify";
 import { ZodError } from "zod";
 
 import { noteRoutes } from "./routes/notes.js";
+import { DrizzleQueryError } from "drizzle-orm";
 
 const app = Fastify({
   logger: true,
 });
 
+function isPostgresError(error: unknown): error is { cause: { code: string } } {
+  return (
+    error !== null &&
+    typeof error === "object" &&
+    "cause" in error &&
+    typeof error.cause === "object"
+  );
+}
+
 app.setErrorHandler((err, req, res) => {
+  if (isPostgresError(err) && err.cause.code === "23505") {
+    return res.code(409).send({
+      error: "Link between the nodes already exist.",
+    });
+  }
+
   if (err instanceof ZodError) {
     return res.code(400).send({
       error: "validation failed",

@@ -2,11 +2,12 @@ import { eq } from "drizzle-orm";
 import { FastifyPluginAsync } from "fastify";
 
 import { db } from "../db/index.js";
-import { notes } from "../db/schema.ts";
+import { notes, noteLinks } from "../db/schema.ts";
 import {
   createNoteSchema,
-  updateNoteSchema,
   noteParamsSchema,
+  updateNoteSchema,
+  createNoteLink,
 } from "../schemas/notes.ts";
 
 export const noteRoutes: FastifyPluginAsync = async (app) => {
@@ -76,5 +77,27 @@ export const noteRoutes: FastifyPluginAsync = async (app) => {
           error: "Note not found.",
           data: { id },
         });
+  });
+
+  app.post("/api/notes/:id/link", async (req, res) => {
+    const { id } = noteParamsSchema.parse(req.params);
+    const { targetId, relationship } = createNoteLink.parse(req.body);
+
+    if (id == targetId) {
+      return res.code(400).send({
+        error: "Node cannot link to itself",
+      });
+    }
+
+    const [link] = await db
+      .insert(noteLinks)
+      .values({
+        sourceId: Number(id),
+        targetId,
+        relationship,
+      })
+      .returning();
+
+    return res.code(201).send(link);
   });
 };
