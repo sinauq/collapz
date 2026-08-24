@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Navigate, Outlet, useNavigate } from "react-router";
-import { postLogin, useFetch } from "./api";
+import { useFetch } from "./hooks/use-fetch";
+import { apiBase } from "./apiRequests";
 
 export function CheckUser() {
   const user = localStorage.getItem("user");
@@ -16,7 +17,13 @@ export function Login() {
   const navigate = useNavigate();
 
   async function handleLogin() {
-    const [user] = useFetch(postLogin(userName));
+    const { data: user } = useFetch(`${apiBase}/users`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ name: userName, role: "researcher" }),
+    });
 
     if (user) {
       localStorage.setItem("user", JSON.stringify(user));
