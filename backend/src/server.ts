@@ -2,9 +2,9 @@ import cors from "@fastify/cors";
 import Fastify from "fastify";
 import { ZodError } from "zod";
 
-import { noteRoutes } from "./routes/notes.js";
-import { linkRoutes } from "./routes/links.js";
-import { userRoutes } from "./routes/users.js";
+import { noteRoutes } from "./routes/notes.ts";
+import { linkRoutes } from "./routes/links.ts";
+import { userRoutes } from "./routes/users.ts";
 
 export function isPostgresError(
   error: unknown,
