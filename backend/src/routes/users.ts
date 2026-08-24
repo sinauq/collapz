@@ -1,7 +1,7 @@
 import { asc, desc, eq, ilike } from "drizzle-orm";
 import { FastifyPluginAsync } from "fastify";
 
-import { db } from "../db/index.js";
+import { db } from "../db/index.ts";
 import { comments, notes, users } from "../db/schema.ts";
 import {
   createUserSchema,
