@@ -1,8 +1,7 @@
 import { createBrowserRouter } from "react-router";
-import NoteView from "./note";
+import { NoteView, NoteList } from "./note";
 import { Login, CheckUser } from "./login";
 
-const NoteList = () => <h1>Note List</h1>;
 const GraphView = () => <h1>Graph View</h1>;
 const UserActivities = () => <h1>User Activities</h1>;
 

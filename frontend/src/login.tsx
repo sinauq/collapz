@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Navigate, Outlet, useNavigate } from "react-router";
-
-const apiBase = "http://localhost:3000/api";
+import { postLogin, useFetch } from "./api";
 
 export function CheckUser() {
   const user = localStorage.getItem("user");
@@ -12,27 +11,13 @@ export function CheckUser() {
   return <Outlet />;
 }
 
-async function postLogin(userName: string) {
-  try {
-    const response = await fetch(`${apiBase}/users`, {
-      method: "POST",
-      body: JSON.stringify({ name: userName, role: "researcher" }),
-    });
-
-    const result = await response.json();
-
-    return result;
-  } catch (error: any) {
-    console.error(error.message);
-  }
-}
-
 export function Login() {
   const [userName, setUserName] = useState("");
   const navigate = useNavigate();
 
   async function handleLogin() {
-    const user = await postLogin(userName);
+    const [user] = useFetch(postLogin(userName));
+
     if (user) {
       localStorage.setItem("user", JSON.stringify(user));
     }
