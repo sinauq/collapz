@@ -48,6 +48,7 @@ export const noteRoutes: FastifyPluginAsync = async (app) => {
         id: notes.id,
         title: notes.title,
         content: notes.content,
+        owner: notes.owner,
       })
       .from(noteLinks)
       .innerJoin(notes, eq(noteLinks.sourceId, notes.id))
@@ -59,6 +60,7 @@ export const noteRoutes: FastifyPluginAsync = async (app) => {
         id: notes.id,
         title: notes.title,
         content: notes.content,
+        owner: notes.owner,
       })
       .from(noteLinks)
       .innerJoin(notes, eq(noteLinks.targetId, notes.id))
@@ -86,6 +88,7 @@ export const noteRoutes: FastifyPluginAsync = async (app) => {
       .values({
         title: body.title,
         content: body.content,
+        owner: body.owner,
       })
       .returning();
 
@@ -99,9 +102,9 @@ export const noteRoutes: FastifyPluginAsync = async (app) => {
       .update(notes)
       .set({
         ...body,
-        updateAt: new Date(),
+        updatedAt: new Date(),
       })
-      .where(eq(Number(id), notes.id))
+      .where(eq(notes.id, id))
       .returning();
 
     return note
@@ -112,18 +115,16 @@ export const noteRoutes: FastifyPluginAsync = async (app) => {
         });
   });
 
-  app.delete("/api/notes/:id", async (req, res) => {
-    const { id } = idParamsScheme.parse(req.params);
-    const [note] = await db
-      .delete(notes)
-      .where(eq(Number(id), notes.id))
-      .returning();
+  // TODO implement delete later
+  // app.delete("/api/notes/:id", async (req, res) => {
+  //   const { id } = idParamsScheme.parse(req.params);
+  //   const [note] = await db.delete(notes).where(eq(notes.id, id)).returning();
 
-    return note
-      ? res.code(204).send()
-      : res.code(404).send({
-          error: "Note not found.",
-          data: { id },
-        });
-  });
+  //   return note
+  //     ? res.code(204).send()
+  //     : res.code(404).send({
+  //         error: "Note not found.",
+  //         data: { id },
+  //       });
+  // });
 };

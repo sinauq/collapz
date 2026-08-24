@@ -7,6 +7,7 @@ export const idParamsScheme = z.object({
 export const createNoteSchema = z.object({
   title: z.string(),
   content: z.string(),
+  owner: z.string(),
 });
 
 export const updateNoteSchema = z

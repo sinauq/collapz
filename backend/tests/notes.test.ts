@@ -1,6 +1,7 @@
 import { beforeAll, afterAll, describe, expect, it } from "vitest";
 import type { FastifyInstance } from "fastify";
 import { buildApp } from "../src/server.js";
+import { CreateNoteBody } from "../src/schemas/notes.js";
 
 export async function getNote(app: FastifyInstance, note: { id: number }) {
   const response = await app.inject({
@@ -13,15 +14,17 @@ export async function getNote(app: FastifyInstance, note: { id: number }) {
 
 export async function createTestNote(
   app: FastifyInstance,
-  note = {
+  note: CreateNoteBody,
+) {
+  const baseNote = {
     title: "Test note",
     content: "This is a test note",
-  },
-) {
+    owner: "1",
+  };
   const response = await app.inject({
     method: "POST",
     url: "/api/notes",
-    payload: note,
+    payload: { ...note, ...baseNote },
   });
 
   expect(response.statusCode).toBe(201);
