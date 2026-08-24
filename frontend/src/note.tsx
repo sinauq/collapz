@@ -184,13 +184,13 @@ function Loading() {
   );
 }
 
-function NoteCard({ data: d }) {
+function NoteCard({ data }: { data: NoteData }) {
   return (
-    <div key={d.id} className="w-64 border-4 border-teal-300 pb-6">
-      <h1 className="bg-primary text-white p-4 rounded-lg">{d.title}</h1>
-      <div>content: {d.content}</div>
-      <div>author: {d.owner ?? "none"}</div>
-      <Link to={`/notes/${d.id}`}>
+    <div key={data.id} className="w-64 border-4 border-teal-300 pb-6">
+      <h1 className="bg-primary text-white p-4 rounded-lg">{data.title}</h1>
+      <div>content: {data.content}</div>
+      <div>author: {data.owner ?? "none"}</div>
+      <Link to={`/notes/${data.id}`}>
         <LinkView text="view note" />
       </Link>
     </div>
@@ -208,7 +208,7 @@ export function NoteList() {
   if (data) {
     return (
       <div className="flex flex-wrap items-center gap-6 p-7">
-        {data.map((d) => (
+        {data.map((d: NoteData) => (
           <NoteCard data={d} />
         ))}
       </div>
