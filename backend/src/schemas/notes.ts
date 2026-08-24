@@ -16,7 +16,7 @@ export const updateNoteSchema = z
     content: z.string().optional(),
   })
   .refine((data) => data.title != undefined || data.content != undefined, {
-    message: "At least one field must be provided.",
+    message: "You shold at least provide one of `title` or `content`.",
   });
 
 export type CreateNoteBody = z.infer<typeof createNoteSchema>;
