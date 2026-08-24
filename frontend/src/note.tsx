@@ -201,6 +201,7 @@ export function NoteList() {
     immediate: true,
   });
 
+  console.log("data", data);
   if (loading) {
     return <Loading />;
   }
