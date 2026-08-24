@@ -5,6 +5,7 @@
   "type": "module",
   "main": "index.ts",
   "scripts": {
+    "start": "fastify start index.ts",
     "dev": "tsx watch index.ts",
     "build": "tsc",
     "test": "vitest",
