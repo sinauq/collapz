@@ -1,55 +1,179 @@
 import { Link, useParams } from "react-router";
-import { getNotes, useFetch } from "./api";
+import { apiBase } from "./apiRequests";
+import {
+  useState,
+  type Dispatch,
+  type ReactElement,
+  type Ref,
+  type SetStateAction,
+} from "react";
+import {
+  headingsPlugin,
+  linkPlugin,
+  listsPlugin,
+  markdownShortcutPlugin,
+  MDXEditor,
+  quotePlugin,
+  type MDXEditorMethods,
+} from "@mdxeditor/editor";
+import { useFetch } from "./hooks/use-fetch";
 
-export function NoteView() {
-  const { id } = useParams();
+type LinkData = {
+  title: string;
+  id: string;
+  relationship: string;
+  content: string;
+};
 
-  const [data] = useFetch(getNotes(id));
+type NoteData = {
+  title: string;
+  id: number;
+  relationships: {
+    backLinks: Array<LinkData>;
+    forwardLinks: Array<LinkData>;
+  };
+  content: string;
+  owner: string;
+};
 
-  if (data) {
-    const {
-      relationships: { backLinks, forwardLinks },
-    } = data;
+function LinkView({
+  text,
+  children,
+}: {
+  text?: string;
+  children?: ReactElement;
+}) {
+  return (
+    <p className="text-teal-100 underline dark:text-till text-sm">
+      {text ?? children}
+    </p>
+  );
+}
 
-    return (
-      <div className="flex justify-center">
-        <div className="w-128 ">
-          <h1>{data.title}</h1>
-          <div>content: {data.content}</div>
-          <div>author: {data.owner ?? "none"}</div>
-          <div className="relationship-section mt-10 pt-3 border-t-2 border-indigo-200">
-            <h2>relationships</h2>
-            <h3>backlinks</h3>
-            <div>
-              {backLinks?.map((d) => (
-                <div className="flex flex-row gap-3">
-                  <p>{d.title}</p>
-                  <Link to={`/notes/${d.id}`}>
-                    <p className="text-teal-100 underline dark:text-till text-sm">
-                      View Note
-                    </p>
-                  </Link>
-                </div>
-              ))}
-            </div>
-            <h3>linked to</h3>
-            <div>
-              {forwardLinks?.map((d) => (
-                <div className="flex flex-row gap-3">
-                  <p>{d.title}</p>
-                  <Link to={`/notes/${d.id}`}>
-                    <p className="text-teal-100 underline dark:text-till text-sm">
-                      View Note
-                    </p>
-                  </Link>
-                </div>
-              ))}
-            </div>
+interface EditorProps {
+  data: NoteData;
+  editorRef?: Ref<MDXEditorMethods> | null;
+}
+
+function NoteEditor({ data, editorRef }: EditorProps) {
+  const [content, setContent] = useState(data.content);
+
+  const { execute } = useFetch();
+
+  const handleSave = async (content: string) => {
+    await execute(`${apiBase}/notes/${data.id}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ content }),
+    });
+  };
+
+  return (
+    <div>
+      <LinkView>
+        <a onClick={() => handleSave(content)}>Save</a>
+      </LinkView>
+      <MDXEditor
+        markdown={content}
+        ref={editorRef}
+        onChange={(v) => setContent(v)}
+        plugins={[
+          headingsPlugin(),
+          listsPlugin(),
+          linkPlugin(),
+          quotePlugin(),
+          markdownShortcutPlugin(),
+        ]}
+      />
+    </div>
+  );
+}
+
+function NoteView({
+  data,
+  setEditing,
+}: {
+  data: NoteData;
+  setEditing: Dispatch<SetStateAction<boolean>>;
+}) {
+  const {
+    relationships: { backLinks, forwardLinks },
+  } = data;
+
+  return (
+    <div className="flex justify-center">
+      <div className="w-128">
+        <h1>{data.title}</h1>
+        <div>content: {data.content}</div>
+        <div>author: {data.owner ?? "none"}</div>
+        <LinkView>
+          <a
+            onClick={() => {
+              setEditing(true);
+            }}
+          >
+            Edit
+          </a>
+        </LinkView>
+
+        <div className="relationship-section mt-10 pt-3 border-t-2 border-indigo-200">
+          <h2>relationships</h2>
+          <h3>backlinks</h3>
+          <div>
+            {backLinks?.map((d) => (
+              <div className="flex flex-row gap-3">
+                <p>{d.title}</p>
+                <Link to={`/notes/${d.id}`}>
+                  <LinkView text="view more" />
+                </Link>
+              </div>
+            ))}
+          </div>
+          <h3>linked to</h3>
+          <div>
+            {forwardLinks?.map((d) => (
+              <div className="flex flex-row gap-3">
+                <p>{d.title}</p>
+                <Link to={`/notes/${d.id}`}>
+                  <LinkView text="view note" />
+                </Link>
+              </div>
+            ))}
           </div>
         </div>
       </div>
+    </div>
+  );
+}
+
+export function NotePage() {
+  const { id } = useParams();
+  const [editing, setEditing] = useState(false);
+  const { data, loading } = useFetch(`${apiBase}/notes/${id}`, {
+    immediate: true,
+  });
+
+  if (loading) {
+    <Loading />;
+  }
+
+  if (data) {
+    return editing ? (
+      <NoteEditor data={data} />
+    ) : (
+      <NoteView data={data} setEditing={setEditing} />
     );
   }
+}
+
+function Loading() {
+  return (
+    <div className="flex justify-center">
+      <div className="w-128">LOADING</div>
+    </div>
+  );
 }
 
 function NoteCard({ data: d }) {
@@ -59,15 +183,19 @@ function NoteCard({ data: d }) {
       <div>content: {d.content}</div>
       <div>author: {d.owner ?? "none"}</div>
       <Link to={`/notes/${d.id}`}>
-        <p className="text-teal-100 underline dark:text-till text-sm">
-          View Note
-        </p>
+        <LinkView text="view note" />
       </Link>
     </div>
   );
 }
 export function NoteList() {
-  const [data] = useFetch(getNotes());
+  const { data, loading } = useFetch(`${apiBase}/notes`, {
+    immediate: true,
+  });
+
+  if (loading) {
+    return <Loading />;
+  }
 
   if (data) {
     return (

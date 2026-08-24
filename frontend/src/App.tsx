@@ -1,5 +1,5 @@
 import { createBrowserRouter } from "react-router";
-import { NoteView, NoteList } from "./note";
+import { NotePage, NoteList } from "./note";
 import { Login, CheckUser } from "./login";
 
 const GraphView = () => <h1>Graph View</h1>;
@@ -16,7 +16,7 @@ export const router = createBrowserRouter([
       },
       {
         path: "/notes/:id",
-        Component: NoteView,
+        Component: NotePage,
       },
       {
         path: "/users",
