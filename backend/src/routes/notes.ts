@@ -3,10 +3,10 @@ import type { FastifyPluginAsync } from "fastify";
 
 import { db } from "../db/index.ts";
 import { noteLinks, notes } from "../db/schema.ts";
+import type { NotesQueryParams } from "../schemas/notes.ts";
 import {
   createNoteSchema,
   idParamsScheme,
-  NotesQueryParams,
   notesQueryParams,
   updateNoteSchema,
 } from "../schemas/notes.ts";
