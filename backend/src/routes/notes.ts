@@ -81,14 +81,14 @@ export const noteRoutes: FastifyPluginAsync = async (app) => {
   });
 
   app.post("/api/notes", async (req, res) => {
-    const body = createNoteSchema.parse(req.body);
+    const { content, title, owner } = createNoteSchema.parse(req.body);
 
     const [note] = await db
       .insert(notes)
       .values({
-        title: body.title,
-        content: body.content,
-        owner: body.owner,
+        title,
+        content,
+        owner,
       })
       .returning();
 
