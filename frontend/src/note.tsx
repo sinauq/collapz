@@ -1,12 +1,3 @@
-import { Link, useParams } from "react-router";
-import { apiBase } from "./apiRequests";
-import {
-  useState,
-  type Dispatch,
-  type ReactElement,
-  type Ref,
-  type SetStateAction,
-} from "react";
 import {
   headingsPlugin,
   linkPlugin,
@@ -16,6 +7,15 @@ import {
   quotePlugin,
   type MDXEditorMethods,
 } from "@mdxeditor/editor";
+import {
+  useState,
+  type Dispatch,
+  type ReactElement,
+  type Ref,
+  type SetStateAction,
+} from "react";
+import { Link, useParams } from "react-router";
+import { apiBase } from "./apiRequests";
 import { useFetch } from "./hooks/use-fetch";
 
 type LinkData = {
@@ -53,27 +53,35 @@ function LinkView({
 interface EditorProps {
   data: NoteData;
   editorRef?: Ref<MDXEditorMethods> | null;
+  setEditing: (arg0: boolean) => void;
 }
 
-function NoteEditor({ data, editorRef }: EditorProps) {
+function NoteEditor({ data, editorRef, setEditing }: EditorProps) {
   const [content, setContent] = useState(data.content);
 
-  const { execute } = useFetch();
+  const { execute, loading } = useFetch();
 
   const handleSave = async (content: string) => {
-    await execute(`${apiBase}/notes/${data.id}`, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ content }),
-    });
+    try {
+      await execute(`${apiBase}/notes/${data.id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ content }),
+      });
+    } finally {
+      console.log("finally");
+      setEditing(false);
+    }
   };
 
   return (
     <div>
       <LinkView>
-        <a onClick={() => handleSave(content)}>Save</a>
+        <button onClick={() => handleSave(content)} disabled={loading}>
+          Save
+        </button>
       </LinkView>
       <MDXEditor
         markdown={content}
@@ -161,7 +169,7 @@ export function NotePage() {
 
   if (data) {
     return editing ? (
-      <NoteEditor data={data} />
+      <NoteEditor data={data} setEditing={setEditing} />
     ) : (
       <NoteView data={data} setEditing={setEditing} />
     );
