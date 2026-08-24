@@ -1,12 +1,12 @@
-import { and, eq } from "drizzle-orm";
-import { FastifyPluginAsync } from "fastify";
+import { eq } from "drizzle-orm";
+import type { FastifyPluginAsync } from "fastify";
 
 import { db } from "../db/index.ts";
 import { noteLinks, notes } from "../db/schema.ts";
 import {
   createNoteLink,
-  linkParams,
   idParamsScheme,
+  linkParams,
   updateNoteLink,
 } from "../schemas/notes.ts";
 
