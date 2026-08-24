@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "type": "module",
-  "main": "index.ts",
+  "main": "index.js",
   "scripts": {
     "start": "fastify start index.js --port 3000",
     "dev": "tsx watch index.ts",
