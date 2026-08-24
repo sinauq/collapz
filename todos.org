@@ -1,0 +1,9 @@
+#+title: Todos
+
+* Problems
+** TODO The comments endpoints
+** TODO Tests for users
+** TODO Separation of testing and development database
+since it is self-hosted, I don't have to worry about production database
+** TODO Error and validation handling is about to get messy
+The responses are not uniform.
