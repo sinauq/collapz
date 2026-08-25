@@ -12,6 +12,7 @@ export const notes = pgTable("notes", {
   id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
   title: text("title").notNull(),
   content: text("content").notNull(),
+  blocks: text("blocks").notNull(),
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .defaultNow(),

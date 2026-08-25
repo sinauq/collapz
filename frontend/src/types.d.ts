@@ -15,6 +15,7 @@ export type NoteData = {
     forwardLinks: Array<LinkData>;
   };
   content: string;
+  blocks: string;
   owner: string;
 };
 

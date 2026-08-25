@@ -7,6 +7,7 @@ export const idParamsScheme = z.object({
 export const createNoteSchema = z.object({
   title: z.string(),
   content: z.string(),
+  blocks: z.string().optional(),
   owner: z.number(),
 });
 
@@ -14,6 +15,7 @@ export const updateNoteSchema = z
   .object({
     title: z.string().optional(),
     content: z.string().optional(),
+    blocks: z.string().optional(),
   })
   .refine((data) => data.title != undefined || data.content != undefined, {
     message: "You shold at least provide one of `title` or `content`.",

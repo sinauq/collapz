@@ -21,6 +21,8 @@ services:
       DATABASE_URL: postgresql://collabz:collabz@db:5432/collabz
     depends_on:
       - db
+    env_file:
+      - ./backend/.env
 
   db:
     image: postgres:17

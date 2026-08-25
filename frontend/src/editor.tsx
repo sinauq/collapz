@@ -22,6 +22,7 @@ import { useState } from "react";
 import { useFetch } from "./hooks/use-fetch";
 
 export function NoteEditor({ data, setEditing }: EditorProps) {
+  const [blocks, setBlocks] = useState(data.blocks);
   const [content, setContent] = useState(data.content);
   const [title, setTitle] = useState(data.title);
   const [links, setLinks] = useState<number[]>([]);
@@ -35,7 +36,7 @@ export function NoteEditor({ data, setEditing }: EditorProps) {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ title, content }),
+        body: JSON.stringify({ title, content, blocks }),
       });
       for (const link of links) {
         await execute(`${apiBase}/notes/${data.id}/links`, {
@@ -51,10 +52,10 @@ export function NoteEditor({ data, setEditing }: EditorProps) {
       setEditing(false);
     }
   };
-  // Creates a new editor instance.
+  // This is temporary, and won't be needed later
   let initialContent;
   try {
-    initialContent = JSON.parse(content);
+    initialContent = JSON.parse(blocks);
   } catch (e) {
     initialContent = [{ type: "paragraph", content }];
   }
@@ -64,9 +65,10 @@ export function NoteEditor({ data, setEditing }: EditorProps) {
   });
 
   useEditorChange((editor) => {
-    const changes = JSON.stringify(editor.document);
-    console.log(changes);
-    setContent(changes);
+    const blocksString = JSON.stringify(editor.document);
+    const contentString = editor.blocksToMarkdownLossy(editor.document);
+    setContent(contentString);
+    setBlocks(blocksString);
   }, editor);
   // Renders the editor instance.
   return (
