@@ -22,24 +22,44 @@ import { useState } from "react";
 import { useFetch } from "./hooks/use-fetch";
 
 export function NoteEditor({ data, setEditing }: EditorProps) {
-  const [blocks, setBlocks] = useState(data.blocks);
-  const [content, setContent] = useState(data.content);
-  const [title, setTitle] = useState(data.title);
+  const [blocks, setBlocks] = useState(data?.blocks ?? "");
+  const [content, setContent] = useState(data?.content ?? "");
+  const [title, setTitle] = useState(data?.title ?? null);
   const [links, setLinks] = useState<number[]>([]);
 
   const { execute, loading } = useFetch();
 
   const handleSave = async () => {
+    const user = localStorage.getItem("user");
+    let ownerId;
+
+    if (user) {
+      ownerId = JSON.parse(user).id;
+    } else {
+      throw new Error("no user!!");
+    }
+
     try {
-      await execute(`${apiBase}/notes/${data.id}`, {
-        method: "PATCH",
+      const param = data ? `/${data.id}` : "";
+      const body = data
+        ? JSON.stringify({ title, content, blocks })
+        : JSON.stringify({
+            title,
+            content,
+            blocks,
+            owner: ownerId,
+          });
+      const response = await execute(`${apiBase}/notes${param}`, {
+        method: data ? "PATCH" : "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ title, content, blocks }),
+        body,
       });
+
+      console.log("hey", response);
       for (const link of links) {
-        await execute(`${apiBase}/notes/${data.id}/links`, {
+        await execute(`${apiBase}/notes/${response.id}/links`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -47,9 +67,12 @@ export function NoteEditor({ data, setEditing }: EditorProps) {
           body: JSON.stringify({ targetId: link, relationship: "relates" }),
         });
       }
+    } catch (e) {
+      console.error("Error occured when creating/updating post", e);
     } finally {
       console.log("finally");
-      setEditing(false);
+
+      if (setEditing) setEditing(false);
     }
   };
   // This is temporary, and won't be needed later
@@ -76,6 +99,7 @@ export function NoteEditor({ data, setEditing }: EditorProps) {
       <input
         name="title"
         value={title}
+        placeholder="Note Title"
         onChange={(e) => setTitle(e.target.value)}
       />
       <button onClick={handleSave}>Save</button>

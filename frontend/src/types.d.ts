@@ -20,8 +20,8 @@ export type NoteData = {
 };
 
 export interface EditorProps {
-  data: NoteData;
-  setEditing: (arg0: boolean) => void;
+  data?: NoteData;
+  setEditing?: (arg0: boolean) => void;
 }
 
 export type NotesSuggestionItem = DefaultSuggestionItem & NoteData;
