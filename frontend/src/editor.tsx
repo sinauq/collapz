@@ -23,6 +23,7 @@ import { useFetch } from "./hooks/use-fetch";
 
 export function NoteEditor({ data, setEditing }: EditorProps) {
   const [content, setContent] = useState(data.content);
+  const [title, setTitle] = useState(data.title);
   const [links, setLinks] = useState<number[]>([]);
 
   const { execute, loading } = useFetch();
@@ -34,7 +35,7 @@ export function NoteEditor({ data, setEditing }: EditorProps) {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ content }),
+        body: JSON.stringify({ title, content }),
       });
       for (const link of links) {
         await execute(`${apiBase}/notes/${data.id}/links`, {
@@ -51,13 +52,15 @@ export function NoteEditor({ data, setEditing }: EditorProps) {
     }
   };
   // Creates a new editor instance.
-  const initialContent =
-    typeof content == "string"
-      ? [{ type: "paragraph", content }]
-      : JSON.parse(content);
+  let initialContent;
+  try {
+    initialContent = JSON.parse(content);
+  } catch (e) {
+    initialContent = [{ type: "paragraph", content }];
+  }
 
   const editor = useCreateBlockNote({
-    initialContent: JSON.parse(content),
+    initialContent,
   });
 
   useEditorChange((editor) => {
@@ -68,6 +71,11 @@ export function NoteEditor({ data, setEditing }: EditorProps) {
   // Renders the editor instance.
   return (
     <div>
+      <input
+        name="title"
+        value={title}
+        onChange={(e) => setTitle(e.target.value)}
+      />
       <button onClick={handleSave}>Save</button>
       <BlockNoteView editor={editor}>
         <SuggestionMenuController
