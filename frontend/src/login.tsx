@@ -16,8 +16,10 @@ export function Login() {
   const [userName, setUserName] = useState("");
   const navigate = useNavigate();
 
+  const { execute } = useFetch();
+
   async function handleLogin() {
-    const { data: user } = useFetch(`${apiBase}/users`, {
+    const user = await execute(`${apiBase}/users`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -28,6 +30,7 @@ export function Login() {
     if (user) {
       localStorage.setItem("user", JSON.stringify(user));
     }
+    console.log("got user", user);
     navigate("/notes");
   }
 
