@@ -1,10 +1,14 @@
+import "@mdxeditor/editor/style.css";
 import {
+  BoldItalicUnderlineToggles,
   headingsPlugin,
   linkPlugin,
   listsPlugin,
   markdownShortcutPlugin,
   MDXEditor,
   quotePlugin,
+  toolbarPlugin,
+  UndoRedo,
   type MDXEditorMethods,
 } from "@mdxeditor/editor";
 import {
@@ -17,6 +21,7 @@ import {
 import { Link, useParams } from "react-router";
 import { apiBase } from "./apiRequests";
 import { useFetch } from "./hooks/use-fetch";
+import { typeaheadPlugin } from "@mdxeditor/typeahead-plugin";
 
 type LinkData = {
   title: string;
@@ -76,6 +81,13 @@ function NoteEditor({ data, editorRef, setEditing }: EditorProps) {
     }
   };
 
+  const toolbarContents = () => (
+    <div className="flex flex-column">
+      <UndoRedo />
+      <BoldItalicUnderlineToggles />
+    </div>
+  );
+
   return (
     <div>
       <LinkView>
@@ -88,11 +100,47 @@ function NoteEditor({ data, editorRef, setEditing }: EditorProps) {
         ref={editorRef}
         onChange={(v) => setContent(v)}
         plugins={[
+          typeaheadPlugin({
+            configs: [
+              {
+                type: "user",
+                trigger: "@",
+                searchCallback: async (query) => {
+                  console.log("user invoked");
+                  const users = ["john", "mohn", "fohn"];
+                  return users.filter((u) => u.startsWith(query));
+                },
+                renderMenuItem: (username) => (
+                  <div className="user-menu-item" key={username}>
+                    <span className="username">@{username}</span>
+                  </div>
+                ),
+                maxResults: 10,
+              },
+              {
+                type: "link",
+                trigger: "[",
+                searchCallback: async (query) => {
+                  console.log("in callback");
+                  const response = await fetch(
+                    `${apiBase}/notes?search=${encodeURIComponent(query)}`,
+                  );
+                  const result = await response.json();
+                  return result.map((r: NoteData) => r.title);
+                },
+                renderMenuItem: (link) => <span>[[{link}]]</span>,
+              },
+            ],
+          }),
           headingsPlugin(),
           listsPlugin(),
           linkPlugin(),
           quotePlugin(),
           markdownShortcutPlugin(),
+          toolbarPlugin({
+            toolbarClassName: "flex flex-column",
+            toolbarContents,
+          }),
         ]}
       />
     </div>
@@ -186,7 +234,7 @@ function Loading() {
 
 function NoteCard({ data }: { data: NoteData }) {
   return (
-    <div key={data.id} className="w-64 border-4 border-teal-300 pb-6">
+    <div className="w-64 border-4 border-teal-300 pb-6">
       <h1 className="bg-primary text-white p-4 rounded-lg">{data.title}</h1>
       <div>content: {data.content}</div>
       <div>author: {data.owner ?? "none"}</div>
@@ -210,7 +258,9 @@ export function NoteList() {
     return (
       <div className="flex flex-wrap items-center gap-6 p-7">
         {data.map((d: NoteData) => (
-          <NoteCard data={d} />
+          <div key={d.id}>
+            <NoteCard data={d} />
+          </div>
         ))}
       </div>
     );

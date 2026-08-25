@@ -7,3 +7,6 @@
 since it is self-hosted, I don't have to worry about production database
 ** TODO Error and validation handling is about to get messy
 The responses are not uniform.
+** TODO after editing note, should force fetch the data.
+** TODO in dark mode, editor text is shit.
+** TODO in light mode, link and button color is shit.
