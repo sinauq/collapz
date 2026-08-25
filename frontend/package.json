@@ -10,8 +10,12 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@mdxeditor/editor": "^4.2.1",
-    "@mdxeditor/typeahead-plugin": "^0.4.0",
+    "@blocknote/core": "^0.54.0",
+    "@blocknote/mantine": "^0.54.0",
+    "@blocknote/react": "^0.54.0",
+    "@mantine/core": "^9.5.2",
+    "@mantine/hooks": "^9.5.2",
+    "@mantine/utils": "^6.0.22",
     "@tailwindcss/vite": "^4.3.3",
     "clsx": "^2.1.1",
     "react": "^19.2.8",

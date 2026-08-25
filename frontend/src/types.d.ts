@@ -20,7 +20,6 @@ export type NoteData = {
 
 export interface EditorProps {
   data: NoteData;
-  editorRef?: Ref<MDXEditorMethods> | null;
   setEditing: (arg0: boolean) => void;
 }
 
