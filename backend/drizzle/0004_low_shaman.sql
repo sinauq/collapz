@@ -1,0 +1,1 @@
+ALTER TABLE "note_links" ALTER COLUMN "relationship" SET NOT NULL;

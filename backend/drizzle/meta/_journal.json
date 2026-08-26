@@ -1,0 +1,90 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1787418053180,
+      "tag": "0000_round_power_man",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1787440165176,
+      "tag": "0001_mean_paladin",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1787443627873,
+      "tag": "0002_familiar_demogoblin",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1787444243997,
+      "tag": "0003_fluffy_menace",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1787446185273,
+      "tag": "0004_low_shaman",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1787446894460,
+      "tag": "0005_careless_cyclops",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1787447306792,
+      "tag": "0006_peaceful_micromacro",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1787451759991,
+      "tag": "0007_youthful_true_believers",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1787526538828,
+      "tag": "0008_dazzling_moondragon",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1787528988743,
+      "tag": "0009_high_echo",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1787696150914,
+      "tag": "0010_thankful_tyrannus",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1787696823763,
+      "tag": "0011_living_morlocks",
+      "breakpoints": true
+    }
+  ]
+}

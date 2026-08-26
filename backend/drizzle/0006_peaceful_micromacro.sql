@@ -1,0 +1,2 @@
+ALTER TABLE "note_links" DROP CONSTRAINT "note_links_source_id_target_id_unique";--> statement-breakpoint
+ALTER TABLE "note_links" ADD CONSTRAINT "source_target_unique_link" UNIQUE("source_id","target_id");

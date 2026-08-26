@@ -1,0 +1,1 @@
+ALTER TABLE "note_links" ADD CONSTRAINT "source_taget_not_same" CHECK ("note_links"."source_id" <> "note_links"."target_id");

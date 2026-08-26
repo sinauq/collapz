@@ -1,0 +1,1 @@
+ALTER TABLE "note_links" ADD CONSTRAINT "note_links_source_id_target_id_unique" UNIQUE("source_id","target_id");
