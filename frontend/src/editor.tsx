@@ -1,6 +1,7 @@
+import { filterSuggestionItems } from "@blocknote/core";
 import "@blocknote/core/fonts/inter.css";
-import "@blocknote/mantine/style.css";
 import { BlockNoteView } from "@blocknote/mantine";
+import "@blocknote/mantine/style.css";
 import {
   SuggestionMenuController,
   useCreateBlockNote,
@@ -8,18 +9,11 @@ import {
   type DefaultReactSuggestionItem,
   type SuggestionMenuProps,
 } from "@blocknote/react";
-
-import {
-  BlockNoteSchema,
-  filterSuggestionItems,
-  type BlockSchema,
-  type InlineContentSchema,
-  type StyleSchema,
-} from "@blocknote/core";
-import { apiBase } from "./apiRequests";
-import type { EditorProps, NoteData } from "./types";
 import { useState } from "react";
+
+import { apiBase } from "./apiRequests";
 import { useFetch } from "./hooks/use-fetch";
+import type { EditorProps, NoteData } from "./types";
 
 export function NoteEditor({ data, setEditing }: EditorProps) {
   const [blocks, setBlocks] = useState(data?.blocks ?? "");
@@ -57,7 +51,6 @@ export function NoteEditor({ data, setEditing }: EditorProps) {
         body,
       });
 
-      console.log("hey", response);
       for (const link of links) {
         await execute(`${apiBase}/notes/${response.id}/links`, {
           method: "POST",
