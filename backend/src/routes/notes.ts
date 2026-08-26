@@ -88,7 +88,7 @@ export const noteRoutes: FastifyPluginAsync = async (app) => {
       .values({
         title,
         content,
-        blocks,
+        blocks: blocks ?? "",
         owner,
       })
       .returning();
@@ -109,7 +109,7 @@ export const noteRoutes: FastifyPluginAsync = async (app) => {
       .returning();
 
     return note
-      ? note
+      ? res.code(201).send(note)
       : res.code(404).send({
           error: "Note not found.",
           data: { id },
