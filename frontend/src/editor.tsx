@@ -18,10 +18,10 @@ import type { EditorProps, NoteData } from "./types";
 export function NoteEditor({ data, setEditing }: EditorProps) {
   const [blocks, setBlocks] = useState(data?.blocks ?? "");
   const [content, setContent] = useState(data?.content ?? "");
-  const [title, setTitle] = useState(data?.title ?? null);
+  const [title, setTitle] = useState(data?.title ?? undefined);
   const [links, setLinks] = useState<number[]>([]);
 
-  const { execute, loading } = useFetch();
+  const { execute } = useFetch();
 
   const handleSave = async () => {
     const user = localStorage.getItem("user");
