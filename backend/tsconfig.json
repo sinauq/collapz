@@ -9,7 +9,7 @@
     "outDir": "dist",
     "rootDir": ".",
     "allowImportingTsExtensions": true,
-    "noEmit": true
+    "rewriteRelativeImportExtensions": true
   },
-  "include": ["src"]
+  "include": ["src", "./index.ts"]
 }

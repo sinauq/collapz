@@ -55,7 +55,6 @@ export async function buildApp() {
 
   await app.register(userRoutes);
 
-  console.log("Server routes: ", app.printRoutes());
   app.get("/api/health", async () => {
     return { status: "ok" };
   });
