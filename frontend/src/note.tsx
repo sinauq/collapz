@@ -140,7 +140,6 @@ export function NoteList() {
     immediate: true,
   });
 
-  console.log("data", data);
   if (loading) {
     return <Loading />;
   }
@@ -148,6 +147,7 @@ export function NoteList() {
   if (data) {
     return (
       <div className="flex flex-wrap items-center gap-6 p-7">
+        <Link to="/notes/create">Create New Note</Link>
         {data.map((d: NoteData) => (
           <div key={d.id}>
             <NoteCard data={d} />

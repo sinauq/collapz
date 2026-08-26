@@ -1,4 +1,4 @@
-import { createBrowserRouter } from "react-router";
+import { createBrowserRouter, redirect } from "react-router";
 import { NotePage, NoteList } from "./note";
 import { Login, CheckUser } from "./login";
 import { NoteEditor } from "./editor";
@@ -11,6 +11,10 @@ export const router = createBrowserRouter([
   {
     element: <CheckUser />,
     children: [
+      {
+        path: "/",
+        loader: () => redirect("/notes"),
+      },
       {
         path: "/notes",
         Component: NoteList,
